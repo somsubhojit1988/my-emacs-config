@@ -354,21 +354,19 @@
     (progn
       (unless (rtags-executable-find "rc") (error "Binary rc is not installed!"))
       (unless (rtags-executable-find "rdm") (error "Binary rdm is not installed!"))
-    
-    
-    
+
       (add-hook 'c-mode-hook 'rtags-start-process-unless-running)
       (add-hook 'c++-mode-hook 'rtags-start-process-unless-running)
       (add-hook 'objc-mode-hook 'rtags-start-process-unless-running)
-    
+
       (define-key c-mode-base-map (kbd "M-[") 'rtags-location-stack-back)
       (define-key c-mode-base-map (kbd "M-.") 'rtags-find-symbol-at-point)
       (define-key c-mode-base-map (kbd "M-,") 'rtags-find-references-at-point)
       (define-key c-mode-base-map (kbd "M-?") 'rtags-display-summary)
       (define-key c-mode-base-map (kbd "M-?") 'rtags-display-summary)
-    
+
       (rtags-enable-standard-keybindings)
-    
+
       (setq rtags-use-helm t)
 
       ;; Shutdown rdm when leaving emacs.
@@ -413,12 +411,12 @@
   #+END_SRC
 * Projectile
   #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :ensure t
-    :config
-    (progn
-      (projectile-global-mode)
-      ))
+   (use-package projectile
+     :ensure t
+     :config
+     (progn
+       (projectile-global-mode)
+       ))
   #+END_SRC
 * Helm
   #+BEGIN_SRC emacs-lisp
@@ -514,9 +512,9 @@
 * ELPY - Better python env
   #+BEGIN_SRC emacs-lisp
   (use-package elpy
-    :ensure t
-    :config( elpy-enable))
-  (setq elpy-rpc-python-command "python3")
+       :ensure t
+       :config( elpy-enable))
+       (setq elpy-rpc-python-command "python3")
   #+END_SRC
 * Monokail-alt theme
   #+BEGIN_SRC emacs-lisp
@@ -545,5 +543,32 @@
     :ensure t
     :init(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
     :config(setq py-autopep8-options '("--max-line-length=79")))
+
+  #+END_SRC
+* styling up c-mode
+  #+BEGIN_SRC emacs-lisp
+  (setq c-default-style "linux"
+	c-basic-offset 4)
+  (setq-default c-basic-offset 4
+		tab-width 4
+		indent-tabs-mode t)
+
+  ;; This maps newline-and-indent (normally C-j) to the return key. It’s
+  ;; exactly equivalent to hitting tab after every time you hit return.
+  (define-key c-mode-base-map (kbd "RET") 'newline-and-indent)
+
+  (defconst my-c-lineup-maximum-indent 30)
+
+  (defun my-c-lineup-arglist (langelem)
+	(let ((ret (c-lineup-arglist langelem)))
+	  (if (< (elt ret 0) my-c-lineup-maximum-indent)
+		  ret
+		(save-excursion
+		  (goto-char (cdr langelem))
+		  (vector (+ (current-column) 8))))))
+
+  (defun my-indent-setup ()
+	(setcdr (assoc 'arglist-cont-nonempty c-offsets-alist)
+			'(c-lineup-gcc-asm-reg my-c-lineup-arglist)))
 
   #+END_SRC
